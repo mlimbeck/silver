@@ -590,6 +590,17 @@ object errors {
 
     def withReason(r: ErrorReason) = VerificationErrorWithCounterexample(ve.withReason(r), model, symState, currentMember, cached)
   }
+
+  case class UpperBoundFailed(offendingNode: Predicate, reason: ErrorReason, override val cached: Boolean = false) extends AbstractVerificationError {
+    val id = "upperBound.failed"
+    val text = s"Upper bound might not hold."
+
+    def withNode(offendingNode: errors.ErrorNode = this.offendingNode) = UpperBoundFailed(offendingNode.asInstanceOf[Predicate], this.reason, this.cached)
+    def withReason(r: ErrorReason) = UpperBoundFailed(offendingNode, r, cached)
+  }
+
+  def UpperBoundFailed(offendingNode: Predicate): PartialVerificationError =
+    PartialVerificationError((reason: ErrorReason) => UpperBoundFailed(offendingNode, reason))
 }
 
 object reasons {
@@ -727,5 +738,12 @@ object reasons {
 
     def withNode(offendingNode: errors.ErrorNode = this.offendingNode) =
       MapKeyNotContained(map, offendingNode.asInstanceOf[Exp])
+  }
+
+  case class InvalidUpperBound(offendingNode: Predicate) extends AbstractErrorReason {
+    val id = "invalid.upperBound"
+    def readableMessage = s"Upper bound ${offendingNode.upperBound.getOrElse("unknown")} for predicate ${offendingNode.name} might not hold."
+
+    def withNode(offendingNode: errors.ErrorNode = this.offendingNode) = InvalidUpperBound(offendingNode.asInstanceOf[Predicate])
   }
 }

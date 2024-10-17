@@ -359,8 +359,9 @@ case class Field(name: String, typ: Type)(val pos: Position = NoPosition, val in
 }
 
 /** A predicate declaration. */
-case class Predicate(name: String, formalArgs: Seq[LocalVarDecl], body: Option[Exp])(val pos: Position = NoPosition, val info: Info = NoInfo, val errT: ErrorTrafo = NoTrafos) extends Location {
-  override lazy val check : Seq[ConsistencyError] =
+case class Predicate(name: String, formalArgs: Seq[LocalVarDecl], upperBound : Option[Exp], body: Option[Exp])(val pos: Position = NoPosition, val info: Info = NoInfo, val errT: ErrorTrafo = NoTrafos) extends Location {
+  override lazy val check : Seq[ConsistencyError] = {
+    (if (upperBound.isDefined && !(upperBound.get isSubtype Perm)) Seq(ConsistencyError(s"Permission amount parameter of access predicate must be of Perm type, but found ${upperBound.get.typ}", upperBound.get.pos)) else Seq()) ++
     (if (body.isDefined) Consistency.checkNonPostContract(body.get) else Seq()) ++
     (if (body.isDefined && !Consistency.noOld(body.get))
       Seq(ConsistencyError("Predicates must not contain old expressions.",body.get.pos))
@@ -377,6 +378,7 @@ case class Predicate(name: String, formalArgs: Seq[LocalVarDecl], body: Option[E
       }
       errors
     }
+  }
 
   val scopedDecls: Seq[Declaration] = formalArgs
   def isAbstract = body.isEmpty

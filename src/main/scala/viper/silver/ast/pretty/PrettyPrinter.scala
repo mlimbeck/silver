@@ -543,8 +543,11 @@ object FastPrettyPrinter extends FastPrettyPrinterBase with BracketPrettyPrinter
             case Some(actualBody) =>
               showBlock(actualBody)
           })
-      case Predicate(name, formalArgs, body) =>
-        text("predicate") <+> name <> nest(defaultIndent, parens(showVars(formalArgs))) <+> (body match {
+      case Predicate(name, formalArgs, upperBound, body) =>
+        text("predicate") <+> name <> nest(defaultIndent, parens(showVars(formalArgs))) <+> (upperBound match {
+          case None => nil
+          case Some(exp) => text("limit") <+> show(exp)
+        }) <+> (body match {
           case None => nil
           case Some(exp) => braces(nest(defaultIndent, line <> show(exp)) <> line)
         })

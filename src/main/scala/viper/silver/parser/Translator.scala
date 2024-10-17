@@ -114,9 +114,9 @@ case class Translator(program: PProgram) {
   }
 
   private def translate(p: PPredicate): Predicate = p match {
-    case PPredicate(_, _, idndef, _, body) =>
+    case PPredicate(_, _, idndef, _, upperBound, body) =>
       val p = findPredicate(idndef)
-      val pp = p.copy(body = body map (_.e.inner) map exp)(p.pos, p.info, p.errT)
+      val pp = p.copy(upperBound = upperBound map (_.upperBound) map exp, body = body map (_.e.inner) map exp)(p.pos, p.info, p.errT)
       members(p.name) = pp
       pp
   }
@@ -147,7 +147,7 @@ case class Translator(program: PProgram) {
       case pd@PDomain(_, _, _, typVars, interp, _) =>
         Domain(name, null, null, typVars map (_.inner.toSeq map (t => TypeVar(t.idndef.name))) getOrElse Nil, interp.map(_.interps))(pos, Translator.toInfo(p.annotations, pd))
       case pp: PPredicate =>
-        Predicate(name, pp.formalArgs map liftArgDecl, null)(pos, Translator.toInfo(p.annotations, pp))
+        Predicate(name, pp.formalArgs map liftArgDecl, null, null)(pos, Translator.toInfo(p.annotations, pp))
       case pm: PMethod =>
         Method(name, pm.formalArgs map liftArgDecl, pm.formalReturns map liftReturnDecl, null, null, null)(pos, Translator.toInfo(p.annotations, pm))
     }

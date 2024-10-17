@@ -156,6 +156,8 @@ object PKw {
   type Returns = PReserved[Returns.type]
   case object Unique extends PKw("unique") with PKeywordLang
   type Unique = PReserved[Unique.type]
+  case object Limit extends PKw("limit") with PKeywordLang
+  type Limit = PReserved[Limit.type ]
 
   sealed trait Spec extends PReservedString; trait AnySpec extends PreSpec with PostSpec with InvSpec
   trait PreSpec extends Spec; trait PostSpec extends Spec; trait InvSpec extends Spec

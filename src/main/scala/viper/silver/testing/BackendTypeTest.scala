@@ -152,7 +152,7 @@ trait BackendTypeTest extends AnyFunSuite with Matchers with BeforeAndAfterAllCo
     val selfVar = LocalVarDecl("self", Ref)()
     val fieldAcc = FieldAccess(selfVar.localVar, field)()
     val fieldAccPred = FieldAccessPredicate(fieldAcc, FullPerm()())()
-    val pred = Predicate("f64", Seq(selfVar), Some(fieldAccPred))()
+    val pred = Predicate("f64", Seq(selfVar), Some(FullPerm()()), Some(fieldAccPred))()
 
     val inhale = Inhale(fieldAccPred)()
     val fpVal = BackendFuncApp(to_fp, Seq(BackendFuncApp(from_int, Seq(IntLit(value)()))()))()

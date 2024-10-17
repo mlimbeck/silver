@@ -36,7 +36,7 @@ object Nodes {
             formalArgs ++ pres ++ posts ++ body
           case Method(_, formalArgs, formalReturns, pres, posts, body) =>
             formalArgs ++ formalReturns ++ pres ++ posts ++ body.toSeq
-          case Predicate(_, formalArg, body) => formalArg ++ body.toSeq
+          case Predicate(_, formalArg, upperBound, body) => formalArg ++ upperBound.toSeq ++ body.toSeq
           case Domain(_, functions, axioms, typVars, _) =>
             functions ++ axioms ++ typVars
           case t: ExtensionMember => t.extensionSubnodes

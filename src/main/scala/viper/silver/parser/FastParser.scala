@@ -162,7 +162,7 @@ object FastParserCompanion {
     // permission syntax
     PKwOp.Acc, PKw.Wildcard, PKw.Write, PKw.None, PKw.Epsilon, PKw.Perm,
     // modifiers
-    PKw.Unique
+    PKw.Unique, PKw.Limit
   )
 }
 
@@ -925,10 +925,12 @@ class FastParser {
 
   def postcondition(implicit ctx : P[_]) : P[PSpecification[PKw.PostSpec]] = P((P(PKw.Ensures) ~ exp).map((PSpecification.apply _).tupled).pos | ParserExtension.postSpecification(ctx))
 
-  def predicateDecl[$: P]: P[PKw.Predicate => PAnnotationsPosition => PPredicate] = P(idndef ~ argList(formalArg) ~~~ bracedExp.lw.?).map {
-    case (idn, args, c) => k =>
-      ap: PAnnotationsPosition => PPredicate(ap.annotations, k, idn, args, c)(ap.pos)
+  def predicateDecl[$: P]: P[PKw.Predicate => PAnnotationsPosition => PPredicate] = P(idndef ~ argList(formalArg) ~~~ predicateLimit.lw.? ~~~ bracedExp.lw.?).map {
+    case (idn, args, l, c) => k =>
+      ap: PAnnotationsPosition => PPredicate(ap.annotations, k, idn, args, l, c)(ap.pos)
   }
+
+  def predicateLimit[$: P]: P[PPredicateLimit] = P((P(PKw.Limit) ~~~ exp.lw) map (PPredicateLimit.apply _).tupled).pos
 
   def methodDecl[$: P]: P[PKw.Method => PAnnotationsPosition => PMethod] =
     P((idndef ~ argList(formalArg) ~~~ methodReturns.lw.? ~~ semiSeparated(precondition) ~~ semiSeparated(postcondition) ~~~ stmtBlock().lw.?) map {
